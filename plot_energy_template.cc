@@ -1,3 +1,18 @@
+/*
+This script compares MC between a prior MC spectrum with a user generated MC spectrum  
+The plots are divided into a few types: All Multiplicities, M1, M2, and Multiplicity > 2
+Each plot contains the spectrum for both old and new MC
+The spectra are normalized to the old spectra for each of the MC
+The plots are binned per 1 keV including a smaller plot of the residuals in the canvas
+
+This script is run via benchmarkCheck_root.py
+It is a template to be adjusted with the parameters from the python script
+Adjusted variables are labelled with leading and trailing "_"
+*/
+
+// Written by Christopher Davis
+// Version 1.0 8Mar2016
+
 #include "TROOT.h"
 #include "TTree.h"
 #include "TSystem.h"
@@ -12,9 +27,9 @@
 #include "TLegend.h"
 #include "TCut.h"
 #include <iostream>
+#include <fstream>
 #include "THStack.h"
 #include "TMath.h"
-
 
 using namespace std;
 
@@ -72,38 +87,38 @@ void plot_energy__volume_() {
   
   double integral_new = new_Mall->GetEntries();
   double integral_new_error = sqrt(integral_new);
-  double normalization = integral_old / integral_new;
-  double normalization_error = normalization * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
+  double normalization_Mall = integral_old / integral_new;
+  double normalization_Mall_error = normalization_Mall * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
   cout << "old integral_Mall: " << integral_old << " +- " << integral_old_error << endl;
   cout << "new integral_Mall: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_Mall: " << normalization << " +- " << normalization_error << endl;
+  cout << "normalization_Mall: " << normalization_Mall << " +- " << normalization_Mall_error << endl;
 
-  normalization = 1;
+  //normalization = 1;
 
   double integral_old = old_M1->GetEntries();
   double integral_old_error = sqrt(integral_old);
   
   double integral_new = new_M1->GetEntries();
   double integral_new_error = sqrt(integral_new);
-  double normalization = integral_old / integral_new;
-  double normalization_error = normalization * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
+  double normalization_M1 = integral_old / integral_new;
+  double normalization_M1_error = normalization_M1 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
   cout << "old integral_M1: " << integral_old << " +- " << integral_old_error << endl;
   cout << "new integral_M1: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_M1: " << normalization << " +- " << normalization_error << endl;
+  cout << "normalization_M1: " << normalization_M1 << " +- " << normalization_M1_error << endl;
 
- double integral_old = old_M2->GetEntries();
+  double integral_old = old_M2->GetEntries();
   double integral_old_error = sqrt(integral_old);
   
   double integral_new = new_M2->GetEntries();
   double integral_new_error = sqrt(integral_new);
-  double normalization = integral_old / integral_new;
-  double normalization_error = normalization * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
+  double normalization_M2 = integral_old / integral_new;
+  double normalization_M2_error = normalization_M2 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
   cout << "old integral_M2: " << integral_old << " +- " << integral_old_error << endl;
   cout << "new integral_M2: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_M2: " << normalization << " +- " << normalization_error << endl;
+  cout << "normalization_M2: " << normalization_M2 << " +- " << normalization_M2_error << endl;
 
 
   double integral_old = old_Mmore2->GetEntries();
@@ -111,18 +126,18 @@ void plot_energy__volume_() {
   
   double integral_new = new_Mmore2->GetEntries();
   double integral_new_error = sqrt(integral_new);
-  double normalization = integral_old / integral_new;
-  double normalization_error = normalization * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
+  double normalization_Mmore2 = integral_old / integral_new;
+  double normalization_Mmore2_error = normalization_Mmore2 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
   cout << "old integral_Mmore2: " << integral_old << " +- " << integral_old_error << endl;
   cout << "new integral_Mmore2: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_Mmore2: " << normalization << " +- " << normalization_error << endl;
+  cout << "normalization_Mmore2: " << normalization_Mmore2 << " +- " << normalization_Mmore2_error << endl;
 
   
-  new_Mall->Scale(normalization);
-  new_M1->Scale(normalization);
-  new_M2->Scale(normalization);
-  new_Mmore2->Scale(normalization);
+  new_Mall->Scale(normalization_Mall);
+  new_M1->Scale(normalization_M1);
+  new_M2->Scale(normalization_M2);
+  new_Mmore2->Scale(normalization_Mmore2);
   
   old_Mall->SetLineColor(kBlack);
   new_Mall->SetLineColor(kRed);
@@ -410,15 +425,21 @@ void plot_energy__volume_() {
 
   
 	// Save all the files
-	c2->SaveAs("_plot_output_location__volume__Mall.pdf")
-	c2->SaveAs("_plot_output_location__volume_Mall.C")
-	c3->SaveAs("_plot_output_location__volume__M1.pdf")
-	c3->SaveAs("_plot_output_location__volume__M1.C")
-	c4->SaveAs("_plot_output_location__volume__M2.pdf")
-	c4->SaveAs("_plot_output_location__volume__M2.C")
-	c5->SaveAs("_plot_output_location__volume__Mmore2.pdf")
-	c5->SaveAs("_plot_output_location__volume__Mmore2.C")
+	c2->SaveAs("_plot_output_location__volume__Mall.pdf");
+	c2->SaveAs("_plot_output_location__volume__Mall.C");
+	c3->SaveAs("_plot_output_location__volume__M1.pdf");
+	c3->SaveAs("_plot_output_location__volume__M1.C");
+	c4->SaveAs("_plot_output_location__volume__M2.pdf");
+	c4->SaveAs("_plot_output_location__volume__M2.C");
+	c5->SaveAs("_plot_output_location__volume__Mmore2.pdf");
+	c5->SaveAs("_plot_output_location__volume__Mmore2.C");
 	
-	
-  
+	// Write the output file
+	ofstream OutFile;
+	OutFile.open("Ratios.dat");
+	OutFile << normalization_Mall << "\t" << normalization_Mall_error;
+	OutFile << normalization_M1 << "\t" << normalization_M1_error;
+	OutFile << normalization_M2 << "\t" << normalization_M1_error;
+	OutFile << normalization_Mmore2 << "\t" << normalization_M2_error;
+	OutFile.close();
 }
