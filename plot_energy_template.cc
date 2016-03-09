@@ -11,7 +11,8 @@ Adjusted variables are labelled with leading and trailing "_"
 */
 
 // Written by Christopher Davis
-// Version 1.0 8Mar2016
+// Version 2.0 9Mar2016
+// Version 2.0 should be completed version
 
 #include "TROOT.h"
 #include "TTree.h"
@@ -47,11 +48,9 @@ void plot_energy__volume_() {
   int bin_low = 0;
   int bin_high = _number_of_bins_;
 
- # TFile* f00 = new TFile("/projects/cuore/simulations_new/BenchmarkTestFiles/Old_BenchmarkData/TeO2Sx-pb210_g4cuore.root");
-  TFile* f00 = new TFile"_old_input_file_");
+  TFile* f00 = new TFile("_old_input_file_");
   TTree* t00 = (TTree*)f00->Get("outTree");
- # TFile* f02 = new TFile("/projects/cuore/simulations_new/BenchmarkTestFiles/NTP/TeO2Sx-pb210_Test_g4cuore.root");
-  TFile* f02 = new TFile("_new_input_file_")
+  TFile* f02 = new TFile("_new_input_file_");
   TTree* t02 = (TTree*)f02->Get("outTree");
   
   TH1F* old_Mall = new TH1F("old_Mall", "old_Mall", nbins, bin_low, bin_high);
@@ -436,10 +435,10 @@ void plot_energy__volume_() {
 	
 	// Write the output file
 	ofstream OutFile;
-	OutFile.open("Ratios.dat");
-	OutFile << normalization_Mall << "\t" << normalization_Mall_error;
-	OutFile << normalization_M1 << "\t" << normalization_M1_error;
-	OutFile << normalization_M2 << "\t" << normalization_M1_error;
-	OutFile << normalization_Mmore2 << "\t" << normalization_M2_error;
+	OutFile.open("BenchmarkTestFiles/Output/Ratios_temp.dat");
+	OutFile << normalization_Mall << "\t" << normalization_Mall_error << "\t";
+	OutFile << normalization_M1 << "\t" << normalization_M1_error << "\t";
+	OutFile << normalization_M2 << "\t" << normalization_M1_error << "\t";
+	OutFile << normalization_Mmore2 << "\t" << normalization_M2_error << "\n";
 	OutFile.close();
 }
