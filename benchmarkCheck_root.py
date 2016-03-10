@@ -110,26 +110,49 @@ Mmore2_Value = Data[:,6]
 Mmore2_ValueError = Data[:,7]
 
 
+# Adjust values based on the ratio of events generated to events benchmark simulations
+
+
 # write output
-Output_File = open("%s" %(Output_File_Name), "w")
+#Output_File = open("%s" %(Output_File_Name), "w")
 
 # iterator for upcoming loop
 i = 0
 
+
+print "*" * 58
+print "*" * 58
+print "****** \t Performing checks ******"
+print "*" * 58
+print "*" * 58
 #checks if ratios are inconsistent with 1.0, if outside range, outputs a message
 for Name in(Simulation_Names):
-	Sigma = abs(float(Mall_Value[i]) - 1.0) / float(Mall_ValueError[i])
-
+	Sigma_Mall = abs(float(Mall_Value[i]) - 1.0) / float(Mall_ValueError[i])
+	Sigma_M1 = abs(float(M1_Value[i]) - 1.0) / float(M1_ValueError[i])
+	Sigma_M2 = abs(float(M2_Value[i]) - 1.0) / float(M2_ValueError[i])
+	Sigma_Mmore2 = abs(float(Mmore2_Value[i]) - 1.0) / float(Mmore2_ValueError[i])
 	# write output
-	Output_File.write("Simulation %s: Error = %s sigma" %(Name, Sigma))
+	#Output_File.write("Simulation %s: Ratio = %s sigma" %(Name, Sigma))
 
-	if Sigma >= 2:
+	
+	
+	if ((Sigma_Mall >= 2) or (Sigma_M1 >= 2) or (Sigma_M2 >= 2) or (Sigma_Mmore2 >= 2)):
 		# Tell the problem to the user
-		print "Change in simulation: %s, investigation needed" %Name
-		print "\t We see a ratio of %s which is %s sigma away from 1.0" %(Mall_Value[i], Sigma)
+		print "Change in simulation %s, investigation needed:" %Name
+			if Sigma_Mall >= 2:
+				print "\t In summed multiplicity, ratio of %s which is %s sigma away from 1.0" %(Mall_Value[i], Sigma_Mall)
+			if Sigma_M1 >= 2:
+				print "\t In M1 spectrum, ratio of %s which is %s sigma away from 1.0" %(M1_Value[i], Sigma_M1)
+			if Sigma_M2 >= 2:
+				print "\t In M2 spectrum, ratio of %s which is %s sigma away from 1.0" %(M2_Value[i], Sigma_M2)
+			if Sigma_Mmore2 >= 2:
+				print "\t In multiplicity > 2 specturm, ratio of %s which is %s sigma away from 1.0" %(M2_Value[i], Sigma_Mmore2)
 	else:
 		# write standard output
-		pass
+		print "No significant difference in simulation %s"
+	
+	print "*" * 58
+	
 	i = i + 1
 	
 print "Benchmarking completed!"	
