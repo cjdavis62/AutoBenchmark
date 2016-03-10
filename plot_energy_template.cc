@@ -44,7 +44,7 @@ void plot_energy__volume_() {
   TTree* t1;
   char *filename;
 
-  int nbins = _number_of_bins_;
+  int nbins = _number_of_bins_ / 2;
   int bin_low = 0;
   int bin_high = _number_of_bins_;
 
@@ -189,7 +189,7 @@ void plot_energy__volume_() {
   old_Mall->GetXaxis()->SetTitle("Energy [keV]");
   old_Mall->GetXaxis()->SetTitleFont(63);
   old_Mall->GetXaxis()->SetTitleSize(16);
-  old_Mall->GetYaxis()->SetTitle("Counts / 1 keV");
+  old_Mall->GetYaxis()->SetTitle("Counts / 2 keV");
   old_Mall->GetYaxis()->SetTitleFont(63);
   old_Mall->GetYaxis()->SetTitleSize(16);
   old_Mall->GetYaxis()->SetTitleOffset(1);
@@ -204,7 +204,7 @@ void plot_energy__volume_() {
   residuals_Mall->GetXaxis()->SetTitleFont(63);
   residuals_Mall->GetXaxis()->SetTitleSize(16);
   residuals_Mall->GetXaxis()->SetTitleOffset(3);
-  residuals_Mall->GetYaxis()->SetTitle("((New - Old) / Old) / 1 keV");
+  residuals_Mall->GetYaxis()->SetTitle("((New - Old) / Old) / 2 keV");
   residuals_Mall->GetYaxis()->SetTitleFont(63);
   residuals_Mall->GetYaxis()->SetTitleSize(16);
   residuals_Mall->GetYaxis()->SetTitleOffset(1);
@@ -253,7 +253,7 @@ void plot_energy__volume_() {
   old_M1->GetXaxis()->SetTitle("Energy [keV]");
   old_M1->GetXaxis()->SetTitleFont(63);
   old_M1->GetXaxis()->SetTitleSize(16);
-  old_M1->GetYaxis()->SetTitle("Counts / 1 keV");
+  old_M1->GetYaxis()->SetTitle("Counts / 2 keV");
   old_M1->GetYaxis()->SetTitleFont(63);
   old_M1->GetYaxis()->SetTitleSize(16);
   old_M1->GetYaxis()->SetTitleOffset(1);
@@ -268,7 +268,7 @@ void plot_energy__volume_() {
   residuals_M1->GetXaxis()->SetTitleFont(63);
   residuals_M1->GetXaxis()->SetTitleSize(16);
   residuals_M1->GetXaxis()->SetTitleOffset(3);
-  residuals_M1->GetYaxis()->SetTitle("((New - Old) / Old) / 1 keV");
+  residuals_M1->GetYaxis()->SetTitle("((New - Old) / Old) / 2 keV");
   residuals_M1->GetYaxis()->SetTitleFont(63);
   residuals_M1->GetYaxis()->SetTitleSize(16);
   residuals_M1->GetYaxis()->SetTitleOffset(1);
@@ -318,7 +318,7 @@ void plot_energy__volume_() {
   old_M2->GetXaxis()->SetTitle("Energy [keV]");
   old_M2->GetXaxis()->SetTitleFont(63);
   old_M2->GetXaxis()->SetTitleSize(16);
-  old_M2->GetYaxis()->SetTitle("Counts / 1 keV");
+  old_M2->GetYaxis()->SetTitle("Counts / 2 keV");
   old_M2->GetYaxis()->SetTitleFont(63);
   old_M2->GetYaxis()->SetTitleSize(16);
   old_M2->GetYaxis()->SetTitleOffset(1);
@@ -333,7 +333,7 @@ void plot_energy__volume_() {
   residuals_M2->GetXaxis()->SetTitleFont(63);
   residuals_M2->GetXaxis()->SetTitleSize(16);
   residuals_M2->GetXaxis()->SetTitleOffset(3);
-  residuals_M2->GetYaxis()->SetTitle("((New - Old) / Old) / 1 keV");
+  residuals_M2->GetYaxis()->SetTitle("((New - Old) / Old) / 2 keV");
   residuals_M2->GetYaxis()->SetTitleFont(63);
   residuals_M2->GetYaxis()->SetTitleSize(16);
   residuals_M2->GetYaxis()->SetTitleOffset(1);
@@ -383,7 +383,7 @@ void plot_energy__volume_() {
   old_Mmore2->GetXaxis()->SetTitle("Energy [keV]");
   old_Mmore2->GetXaxis()->SetTitleFont(63);
   old_Mmore2->GetXaxis()->SetTitleSize(16);
-  old_Mmore2->GetYaxis()->SetTitle("Counts / 1 keV");
+  old_Mmore2->GetYaxis()->SetTitle("Counts / 2 keV");
   old_Mmore2->GetYaxis()->SetTitleFont(63);
   old_Mmore2->GetYaxis()->SetTitleSize(16);
   old_Mmore2->GetYaxis()->SetTitleOffset(1);
@@ -398,7 +398,7 @@ void plot_energy__volume_() {
   residuals_Mmore2->GetXaxis()->SetTitleFont(63);
   residuals_Mmore2->GetXaxis()->SetTitleSize(16);
   residuals_Mmore2->GetXaxis()->SetTitleOffset(3);
-  residuals_Mmore2->GetYaxis()->SetTitle("((New - Old) / Old) / 1 keV");
+  residuals_Mmore2->GetYaxis()->SetTitle("((New - Old) / Old) / 2 keV");
   residuals_Mmore2->GetYaxis()->SetTitleFont(63);
   residuals_Mmore2->GetYaxis()->SetTitleSize(16);
   residuals_Mmore2->GetYaxis()->SetTitleOffset(1);
