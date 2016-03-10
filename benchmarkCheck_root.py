@@ -1,10 +1,11 @@
-#This script runs over the .cc file that takes in the benchmark .root files
+# This script runs over the .cc file that takes in the benchmark .root files
 # The output of the .cc file is collected here and the values are checked for consistency
 
 
 # Written by Christopher Davis
 # christopher.davis@yale.edu
 # v0.1 8Mar2016
+# v1.0 10Mar2016
 
 # Usage information:
 # This script needs be run from the same directory in which the files were written
@@ -17,6 +18,8 @@ from numpy import *
 # Inputs Location
 Residual_File_Name = "BenchmarkTestFiles/Output/Ratios.dat"
 Residual_File_Name_temp = "BenchmarkTestFiles/Output/Ratios_temp.dat"
+
+Ratios_File_Name = "BenchmarkTestFiles/spectra/EventRatios.txt"
 
 # Outputs Location, '\' for sed
 Plot_Output_Location = "BenchmarkTestFiles\/Output\/Plots\/"
@@ -99,57 +102,83 @@ for Name in Simulation_Names:
 
 # open the file
 Data = loadtxt(Residual_File_Name, delimiter = "\t", dtype = str) 
-# read the values. Should be in format {value \t error}
-Mall_Value = Data[:,0]
-Mall_ValueError = Data[:,1]
-M1_Value = Data[:,2]
-M1_ValueError = Data[:,3]
-M2_Value = Data[:,4]
-M2_ValueError = Data[:,5]
-Mmore2_Value = Data[:,6]
-Mmore2_ValueError = Data[:,7]
+# read the values as strings. Should be in format {value \t error}
+Mall_Value_str = Data[:,0]
+Mall_ValueError_str = Data[:,1]
+M1_Value_str = Data[:,2]
+M1_ValueError_str = Data[:,3]
+M2_Value_str = Data[:,4]
+M2_ValueError_str = Data[:,5]
+Mmore2_Value_str = Data[:,6]
+Mmore2_ValueError_str = Data[:,7]
 
+# Convert to float
+Mall_Value = [float(x) for x in Mall_Value_str]
+Mall_ValueError = [float(x) for x in Mall_ValueError_str]
+M1_Value = [float(x) for x in M1_Value_str]
+M1_ValueError = [float(x) for x in M1_ValueError_str]
+M2_Value = [float(x) for x in M2_Value_str]
+M2_ValueError = [float(x) for x in M2_ValueError_str]
+Mmore2_Value = [float(x) for x in Mmore2_Value_str]
+Mmore2_ValueError = [float(x) for x in Mmore2_ValueError_str]
 
-# Adjust values based on the ratio of events generated to events benchmark simulations
+# Read in values of the ratio of events generated
+Ratios = loadtxt(Ratios_File_Name, delimiter = "\t", dtype = str)
+Generation_Ratios_str = Ratios[:,1]
 
+# Convert to float
+Generation_Ratios = [float(x) for x in Generation_Ratios_str]
 
-# write output
-#Output_File = open("%s" %(Output_File_Name), "w")
+# Adjust the values based on the ratio of events generated
+for j in range (0, len(Generation_Ratios)):
 
-# iterator for upcoming loop
-i = 0
+	Mall_Value[j] = Mall_Value[j] / Generation_Ratios[j]
+	Mall_ValueError[j] = Mall_ValueError[j] / Generation_Ratios[j]
+	M1_Value[j] = M1_Value[j] / Generation_Ratios[j]
+	M1_ValueError[j] = M1_ValueError[j] / Generation_Ratios[j]
+	M2_Value[j] = M2_Value[j] / Generation_Ratios[j]
+	M2_ValueError[j] = M2_ValueError[j] / Generation_Ratios[j]
+	Mmore2_Value[j] = Mmore2_Value[j] / Generation_Ratios[j]
+	Mmore2_ValueError[j] = Mmore2_ValueError[j] / Generation_Ratios[j]
 
+# Write output
 
 print "*" * 58
 print "*" * 58
 print "****** \t Performing checks ******"
 print "*" * 58
 print "*" * 58
+
+# Discriminator for determining if a spectrum is too variant
+Discriminator = 10
+
+# iterator for upcoming loop
+i = 0
 #checks if ratios are inconsistent with 1.0, if outside range, outputs a message
 for Name in(Simulation_Names):
-	Sigma_Mall = abs(float(Mall_Value[i]) - 1.0) / float(Mall_ValueError[i])
-	Sigma_M1 = abs(float(M1_Value[i]) - 1.0) / float(M1_ValueError[i])
-	Sigma_M2 = abs(float(M2_Value[i]) - 1.0) / float(M2_ValueError[i])
-	Sigma_Mmore2 = abs(float(Mmore2_Value[i]) - 1.0) / float(Mmore2_ValueError[i])
+	Sigma_Mall = abs((Mall_Value[i]) - 1.0) / (Mall_ValueError[i])
+	Sigma_M1 = abs((M1_Value[i]) - 1.0) / (M1_ValueError[i])
+	Sigma_M2 = abs((M2_Value[i]) - 1.0) / (M2_ValueError[i])
+	Sigma_Mmore2 = abs((Mmore2_Value[i]) - 1.0) / (Mmore2_ValueError[i])
 	# write output
 	#Output_File.write("Simulation %s: Ratio = %s sigma" %(Name, Sigma))
 
 	
 	
-	if ((Sigma_Mall >= 2) or (Sigma_M1 >= 2) or (Sigma_M2 >= 2) or (Sigma_Mmore2 >= 2)):
+	if ((Sigma_Mall >= Discriminator) or (Sigma_M1 >= Discriminator) or (Sigma_M2 >= Discriminator) or (Sigma_Mmore2 >= Discriminator)):
 		# Tell the problem to the user
 		print "Change in simulation %s, investigation needed:" %Name
-			if Sigma_Mall >= 2:
-				print "\t In summed multiplicity, ratio of %s which is %s sigma away from 1.0" %(Mall_Value[i], Sigma_Mall)
-			if Sigma_M1 >= 2:
-				print "\t In M1 spectrum, ratio of %s which is %s sigma away from 1.0" %(M1_Value[i], Sigma_M1)
-			if Sigma_M2 >= 2:
-				print "\t In M2 spectrum, ratio of %s which is %s sigma away from 1.0" %(M2_Value[i], Sigma_M2)
-			if Sigma_Mmore2 >= 2:
-				print "\t In multiplicity > 2 specturm, ratio of %s which is %s sigma away from 1.0" %(M2_Value[i], Sigma_Mmore2)
+		if Sigma_Mall >= Discriminator:
+			print "\t In summed multiplicity, ratio of %s +- %s" %(Mall_Value[i], Mall_ValueError[i])
+		if Sigma_M1 >= Discriminator:
+			print "\t In M1 spectrum, ratio of %s +- %s" %(M1_Value[i], M1_ValueError[i])
+		if Sigma_M2 >= Discriminator:
+			print "\t In M2 spectrum, ratio of %s +- %s" %(M2_Value[i], M2_ValueError[i])
+		if Sigma_Mmore2 >= Discriminator:
+			print "\t In multiplicity > 2 spectrum, ratio of %s +- %s" %(Mmore2_Value[i], Mmore2_Value[i])
 	else:
 		# write standard output
-		print "No significant difference in simulation %s"
+		print "No significant differences in simulation %s" %Name
 	
 	print "*" * 58
 	
