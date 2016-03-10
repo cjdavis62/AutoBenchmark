@@ -29,16 +29,14 @@ echo "If you changed the names of the volumes, you will need to edit the source 
 # to fix this, look for lines that contain $QSHIELDS_APP and make necessary adjustments
 
 # make directories to place files in
-
 echo "Now generating directories to place output files"
-
 WorkDirectory=BenchmarkTestFiles
 if [ -d "$WorkDirectory" ]; then
 else
     mkdir $WorkDirectory
 fi
 
-#log files go here
+# log files go here
 LogDirectory=$WorkDirectory/log
 if [ -d $LogDirectory ]; then
 else
@@ -51,6 +49,9 @@ if [ -d $SpectraDirectory ]; then
 else
     mkdir $SpectraDirectory
 fi
+
+# ratios of generated events go under spectra directory
+GeneratedEventsFile=$SpectraDirectory/EventRatios.txt
 
 #g4cuore data go here
 NTPDirectory=$WorkDirectory/NTP
@@ -84,22 +85,40 @@ echo "Okay we will now run qshields on the benchmarking simulations"
 
 ##### Set Number of Events to Run ####################
 
-#PbREvents=100000
+# Number of events to be generated
 PbREvents=100000
-#PbRLoops=10000
 PbRLoops=10
-#CuFrameSxEvents=10000000
 CuFrameSxEvents=1000000
-#PTFESxEvents=10000000
 PTFESxEvents=1000000
-#TeO2SxEvents=10000
 TeO2SxEvents=10000
-#TeO2SxLoops=1000
 TeO2SxLoops=10
-#TeO2Events=10000000
 TeO2Events=1000000
-#_10mKEvents=50000000
 _10mKEvents=5000000
+
+# Events in standard simulation
+PbREvents_standard=100000
+PbRLoops_standard=10000
+CuFrameSxEvents_standard=10000000
+PTFESxEvents_standard=10000000
+TeO2SxEvents_standard=10000
+TeO2SxLoops_standard=1000
+TeO2Events_standard=10000000
+_10mKEvents_standard=50000000
+
+
+# Ratio of Events generated automatically to standard events #
+PbR_Ratio=$(($PbREvents_standard * $PbRLoops_standard) / ($PbREvents * $PbRLoops)) 
+CuFrameSx_Ratio=$(($CuFrameSxEvents_standard) / ($CuFrameSxEvents)
+PTFESx_Ratio=$(($PTFESxEvents_standard) / ($PTFESxEvents))
+TeO2Sx_Ratio=$(($TeO2SxEvents_standard * $TeO2SxLoops_standard) / ($TeO2SxEvents * $TeO2SxLoops))
+TeO2_Ratio=$(($TeO2Events_standard) / ($TeO2Events))
+_10mK_Ratio=$(($_10mKEvents_standard) / ($_10mkEvents))
+
+echo -e "PbR: \t $PbR_Ratio" > $GeneratedEventsFile
+echo -e "CuFrameSx: \t $CuFrameSx_Ratio" >> $GeneratedEventsFile
+echo -e "PTFESx: \t $PTFESx_Ratio" >> $GeneratedEventsFile
+echo -e "TeO2Sx: \t $TeO2Sx_Ratio" >> $GeneratedEventsFile
+echo -e "10mK: \t $_10mK_Ratio" >> $GeneratedEventsFile
 
 
 ########## Start Running Simulations ##################
