@@ -44,15 +44,18 @@ void plot_energy__volume_() {
   TTree* t1;
   char *filename;
 
+  // Set the bin width to 2 keV, plot from 0 to max energy
   int nbins = _number_of_bins_ / 2;
   int bin_low = 0;
   int bin_high = _number_of_bins_;
 
+  // Get the files to compare
   TFile* f00 = new TFile("_old_input_file_");
   TTree* t00 = (TTree*)f00->Get("outTree");
   TFile* f02 = new TFile("_new_input_file_");
   TTree* t02 = (TTree*)f02->Get("outTree");
   
+  // Compare these histograms
   TH1F* old_Mall = new TH1F("old_Mall", "old_Mall", nbins, bin_low, bin_high);
   TH1F* old_M1 = new TH1F("old_M1", "old_M1", nbins, bin_low, bin_high);
   TH1F* old_M2 = new TH1F("old_M2", "old_M2", nbins, bin_low, bin_high);
@@ -62,16 +65,18 @@ void plot_energy__volume_() {
   TH1F* new_M2 = new TH1F("new_M2", "new_M2", nbins, bin_low, bin_high);
   TH1F* new_Mmore2 = new TH1F("new_Mmore2", "new_Mmore2", nbins, bin_low, bin_high);
 
+  // Residual plots
   TH1F* residuals_Mall = new TH1F("residuals_Mall", "residuals_Mall", nbins, bin_low, bin_high);
   TH1F* residuals_M1 = new TH1F("residuals_M1", "residuals_M1", nbins, bin_low, bin_high);
   TH1F* residuals_M2 = new TH1F("residuals_M2", "residuals_M2", nbins, bin_low, bin_high);
   TH1F* residuals_Mmore2 = new TH1F("residuals_Mmore2", "residuals_Mmore2", nbins, bin_low, bin_high);
 
-
+  // Multiplicity cuts
   TCut M1 = "Multiplicity == 1";
   TCut M2 = "Multiplicity == 2";
   TCut Mmore2 = "Multiplicity > 2";
   
+  // Draw the root trees into the histograms
   t00->Draw("Ener1 >> old_Mall");
   t00->Draw("Ener1 >> old_M1", M1);
   t00->Draw("Ener1 >> old_M2", M2);
@@ -81,20 +86,22 @@ void plot_energy__volume_() {
   t02->Draw("Ener1 >> new_M2", M2);
   t02->Draw("Ener1 >> new_Mmore2", Mmore2);
 
+  // Get the total number of events, set the error on the number of events equal to sqrt(N). Do for both old and new histograms
   double integral_old = old_Mall->GetEntries();
   double integral_old_error = sqrt(integral_old);
-  
   double integral_new = new_Mall->GetEntries();
   double integral_new_error = sqrt(integral_new);
+  
+  // Get normalizations for plotting and for determining the event ratios
   double normalization_Mall = integral_old / integral_new;
   double normalization_Mall_error = normalization_Mall * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
-  cout << "old integral_Mall: " << integral_old << " +- " << integral_old_error << endl;
-  cout << "new integral_Mall: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_Mall: " << normalization_Mall << " +- " << normalization_Mall_error << endl;
+  // Suppress output
+  //cout << "old integral_Mall: " << integral_old << " +- " << integral_old_error << endl;
+  //cout << "new integral_Mall: " << integral_new << " +- " << integral_new_error << endl;
+  //cout << "normalization_Mall: " << normalization_Mall << " +- " << normalization_Mall_error << endl;
 
-  //normalization = 1;
-
+  // Repeat this process for the other multiplicities
   double integral_old = old_M1->GetEntries();
   double integral_old_error = sqrt(integral_old);
   
@@ -103,9 +110,9 @@ void plot_energy__volume_() {
   double normalization_M1 = integral_old / integral_new;
   double normalization_M1_error = normalization_M1 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
-  cout << "old integral_M1: " << integral_old << " +- " << integral_old_error << endl;
-  cout << "new integral_M1: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_M1: " << normalization_M1 << " +- " << normalization_M1_error << endl;
+  //cout << "old integral_M1: " << integral_old << " +- " << integral_old_error << endl;
+  //cout << "new integral_M1: " << integral_new << " +- " << integral_new_error << endl;
+  //cout << "normalization_M1: " << normalization_M1 << " +- " << normalization_M1_error << endl;
 
   double integral_old = old_M2->GetEntries();
   double integral_old_error = sqrt(integral_old);
@@ -115,9 +122,9 @@ void plot_energy__volume_() {
   double normalization_M2 = integral_old / integral_new;
   double normalization_M2_error = normalization_M2 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
-  cout << "old integral_M2: " << integral_old << " +- " << integral_old_error << endl;
-  cout << "new integral_M2: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_M2: " << normalization_M2 << " +- " << normalization_M2_error << endl;
+  //cout << "old integral_M2: " << integral_old << " +- " << integral_old_error << endl;
+  //cout << "new integral_M2: " << integral_new << " +- " << integral_new_error << endl;
+  //cout << "normalization_M2: " << normalization_M2 << " +- " << normalization_M2_error << endl;
 
 
   double integral_old = old_Mmore2->GetEntries();
@@ -128,16 +135,18 @@ void plot_energy__volume_() {
   double normalization_Mmore2 = integral_old / integral_new;
   double normalization_Mmore2_error = normalization_Mmore2 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
-  cout << "old integral_Mmore2: " << integral_old << " +- " << integral_old_error << endl;
-  cout << "new integral_Mmore2: " << integral_new << " +- " << integral_new_error << endl;
-  cout << "normalization_Mmore2: " << normalization_Mmore2 << " +- " << normalization_Mmore2_error << endl;
+  //cout << "old integral_Mmore2: " << integral_old << " +- " << integral_old_error << endl;
+  //cout << "new integral_Mmore2: " << integral_new << " +- " << integral_new_error << endl;
+  //cout << "normalization_Mmore2: " << normalization_Mmore2 << " +- " << normalization_Mmore2_error << endl;
 
   
   new_Mall->Scale(normalization_Mall);
   new_M1->Scale(normalization_M1);
   new_M2->Scale(normalization_M2);
   new_Mmore2->Scale(normalization_Mmore2);
-  
+
+
+  // Set color preferences  
   old_Mall->SetLineColor(kBlack);
   new_Mall->SetLineColor(kRed);
   old_M1->SetLineColor(kBlack);
@@ -147,7 +156,7 @@ void plot_energy__volume_() {
   old_Mmore2->SetLineColor(kBlack);
   new_Mmore2->SetLineColor(kRed);
 
-
+  // Build legends
   leg_Mall = new TLegend(0.67, 0.67, 0.88, 0.88);
   leg_Mall->AddEntry(old_Mall, "Old", "l");
   leg_Mall->AddEntry(new_Mall, "New", "l");
@@ -164,6 +173,7 @@ void plot_energy__volume_() {
   leg_Mmore2->AddEntry(old_Mmore2, "Old", "l");
   leg_Mmore2->AddEntry(new_Mmore2, "New", "l");
 
+  // Generate canvases for each multiplicity
   TCanvas* c2 = new TCanvas("c2", "c2", 1200, 800);
   c2->cd();
   TPad *pad1c2 = new TPad("pad1c2", "pad1c2", 0, 0.33, 1, 1);
@@ -211,6 +221,8 @@ void plot_energy__volume_() {
   residuals_Mall->GetYaxis()->SetLabelFont(63);
   residuals_Mall->GetYaxis()->SetLabelSize(16);
 
+  
+  // Calculate residuals and plot
   for (Int_t i = 1; i <= nbins; i++) {
     if (old_Mall->GetBinContent(i) != 0)
       {
@@ -223,7 +235,8 @@ void plot_energy__volume_() {
 	Double_t differr = new_Mall->GetBinError(i);
       }
     residuals_Mall->SetBinContent(i, diff);
-    //    residuals_Mall->SetBinError(i, differr);
+	// Error bars are too large to see the plot very well so comment out
+    //residuals_Mall->SetBinError(i, differr);
 }
 
   residuals_Mall->Draw("P");
@@ -287,7 +300,8 @@ void plot_energy__volume_() {
 	Double_t differr = new_M1->GetBinError(i);
       }
     residuals_M1->SetBinContent(i, diff);
-    //    residuals_M1->SetBinError(i, differr);
+	// Error bars are too large to see the plot very well so comment out
+    //residuals_M1->SetBinError(i, differr);
 }
 
   residuals_M1->Draw("P");
@@ -352,7 +366,8 @@ void plot_energy__volume_() {
 	Double_t differr = new_M2->GetBinError(i);
       }
     residuals_M2->SetBinContent(i, diff);
-    //    residuals_M2->SetBinError(i, differr);
+	// Error bars are too large to see the plot very well so comment out
+    //residuals_M2->SetBinError(i, differr);
 }
 
   residuals_M2->Draw("P");
@@ -417,7 +432,8 @@ void plot_energy__volume_() {
 	Double_t differr = new_Mmore2->GetBinError(i);
       }
     residuals_Mmore2->SetBinContent(i, diff);
-    //    residuals_Mmore2->SetBinError(i, differr);
+	// Error bars are too large to see the plot very well so comment out
+    //residuals_Mmore2->SetBinError(i, differr);
 }
 
   residuals_Mmore2->Draw("P");
