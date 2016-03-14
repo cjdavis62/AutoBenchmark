@@ -16,12 +16,10 @@
 ####################### Prep to Run programs #########################
 clear
 echo "What is the name of your qshields application in your PATH? e.g. qshields-t15.11.b01"
-#read QSHIELDS_APP
-QSHIELDS_APP=qshields-t15.11.b01
+read QSHIELDS_APP
 
 echo "What is the name of your g4cuore application in your PATH? e.g. g4cuore-t15.11.b01"
-#read G4CUORE_APP
-G4CUORE_APP=g4cuore-t15.11.b01
+read G4CUORE_APP
 
 echo "WARNING"
 echo "Program assumes no changes to the volume names between versions"
@@ -31,7 +29,7 @@ echo "If you changed the names of the volumes, you will need to edit the source 
 # make directories to place files in
 echo "Now generating directories to place output files"
 WorkDirectory=BenchmarkTestFiles
-if [ -d "$WorkDirectory" ]; then
+if [ -d $WorkDirectory ]; then
 else
     mkdir $WorkDirectory
 fi
