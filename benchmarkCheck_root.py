@@ -34,7 +34,7 @@ if not os.path.isdir("BenchmarkTestFiles/Output/Plots"):
 # Names of the volumes to be checked
 Simulation_Names=["PbR_th232", "CuFrameSx_th232", "PTFESx_th232", "TeO2Sx_pb210", "TeO2_u238", "10mK_u238"]
 
-# Number of bins depends on each file
+# Number of bins depends on each simulation
 PbR_th232_Bins = 3500
 CuFrameSx_th232_Bins = 10000
 PTFESx_th232_Bins = 10000
@@ -112,7 +112,7 @@ M2_ValueError_str = Data[:,5]
 Mmore2_Value_str = Data[:,6]
 Mmore2_ValueError_str = Data[:,7]
 
-# Convert to float
+# Convert data to floats
 Mall_Value = [float(x) for x in Mall_Value_str]
 Mall_ValueError = [float(x) for x in Mall_ValueError_str]
 M1_Value = [float(x) for x in M1_Value_str]
@@ -126,7 +126,7 @@ Mmore2_ValueError = [float(x) for x in Mmore2_ValueError_str]
 Ratios = loadtxt(Ratios_File_Name, delimiter = "\t", dtype = str)
 Generation_Ratios_str = Ratios[:,1]
 
-# Convert to float
+# Convert to floats
 Generation_Ratios = [float(x) for x in Generation_Ratios_str]
 
 # Adjust the values based on the ratio of events generated
@@ -142,14 +142,15 @@ for j in range (0, len(Generation_Ratios)):
 	Mmore2_ValueError[j] = Mmore2_ValueError[j] / Generation_Ratios[j]
 
 # Write output
+os.system("clear")
 
-print "*" * 58
-print "*" * 58
-print "****** \t Performing checks ******"
-print "*" * 58
-print "*" * 58
+print "*" * 29
+print "*" * 29
+print "****** Output ******"
+print "*" * 29
+print "*" * 29
 
-# Discriminator for determining if a spectrum is too variant
+# Discriminator for determining if a spectrum is too variant, will need checking
 Discriminator = 10
 
 # iterator for upcoming loop
@@ -160,10 +161,7 @@ for Name in(Simulation_Names):
 	Sigma_M1 = abs((M1_Value[i]) - 1.0) / (M1_ValueError[i])
 	Sigma_M2 = abs((M2_Value[i]) - 1.0) / (M2_ValueError[i])
 	Sigma_Mmore2 = abs((Mmore2_Value[i]) - 1.0) / (Mmore2_ValueError[i])
-	# write output
-	#Output_File.write("Simulation %s: Ratio = %s sigma" %(Name, Sigma))
-
-	
+	# write output	
 	
 	if ((Sigma_Mall >= Discriminator) or (Sigma_M1 >= Discriminator) or (Sigma_M2 >= Discriminator) or (Sigma_Mmore2 >= Discriminator)):
 		# Tell the problem to the user
@@ -180,8 +178,9 @@ for Name in(Simulation_Names):
 		# write standard output
 		print "No significant differences in simulation %s" %Name
 	
-	print "*" * 58
+	print "*" * 29
 	
 	i = i + 1
 	
 print "Benchmarking completed!"	
+print "Possible changes on smaller scales, recommended to look at the plots in %s to be sure" %(Plot_Output_Location)
