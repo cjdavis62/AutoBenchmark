@@ -29,22 +29,19 @@ echo "If you changed the names of the volumes, you will need to edit the source 
 # make directories to place files in
 echo "Now generating directories to place output files"
 WorkDirectory=BenchmarkTestFiles
-if [ -d $WorkDirectory ]; then
-else
+if ! [ -d $WorkDirectory ]; then
     mkdir $WorkDirectory
 fi
 
 # log files go here
 LogDirectory=$WorkDirectory/log
-if [ -d $LogDirectory ]; then
-else
+if ! [ -d $LogDirectory ]; then
     mkdir $LogDirectory
 fi
 
 # spectra go here
 SpectraDirectory=$WorkDirectory/spectra
-if [ -d $SpectraDirectory ]; then
-else
+if ! [ -d $SpectraDirectory ]; then
     mkdir $SpectraDirectory
 fi
 
@@ -53,8 +50,7 @@ GeneratedEventsFile=$SpectraDirectory/EventRatios.txt
 
 #g4cuore data go here
 NTPDirectory=$WorkDirectory/NTP
-if [ -d $NTPDirectory ]; then
-else
+if ! [ -d $NTPDirectory ]; then
     mkdir $NTPDirectory
 fi
 
@@ -74,7 +70,12 @@ else
     scp -r $ROMA_USERNAME@farm-login.roma1.infn.it:/cuore/data/simulation/CUORE/v_9.6/benchmark/t15.11.b01/ntp/ $ROMA_DIRECTORY
 fi
 
-#The root script that will run over the output files and run checks
+# Decay Chain files
+TH232=$WorkDirectory/DecayChains/th232_all
+PB210=$WorkDirectory/DecayChains/pb210-pb206
+U238=$WorkDirectory/DecayChains/u238_all
+
+# The root script that will run over the output files and run checks
 ROOTSCRIPT=$ROMA_DIRECTORY/benchmarkCheck_root.py
 
 
@@ -105,12 +106,21 @@ _10mKEvents_standard=50000000
 
 
 # Ratio of Events generated automatically to standard events #
-PbR_Ratio=$(($PbREvents_standard * $PbRLoops_standard) / ($PbREvents * $PbRLoops)) 
-CuFrameSx_Ratio=$(($CuFrameSxEvents_standard) / ($CuFrameSxEvents)
-PTFESx_Ratio=$(($PTFESxEvents_standard) / ($PTFESxEvents))
-TeO2Sx_Ratio=$(($TeO2SxEvents_standard * $TeO2SxLoops_standard) / ($TeO2SxEvents * $TeO2SxLoops))
-TeO2_Ratio=$(($TeO2Events_standard) / ($TeO2Events))
-_10mK_Ratio=$(($_10mKEvents_standard) / ($_10mkEvents))
+PbR_Ratio=$(((PbREvents_standard * PbRLoops_standard) / (PbREvents * PbRLoops))) 
+CuFrameSx_Ratio=$(((CuFrameSxEvents_standard) / CuFrameSxEvents))
+PTFESx_Ratio=$(((PTFESxEvents_standard) / PTFESxEvents))
+TeO2Sx_Ratio=$(((TeO2SxEvents_standard * TeO2SxLoops_standard) / (TeO2SxEvents * TeO2SxLoops)))
+TeO2_Ratio=$(((TeO2Events_standard) / TeO2Events))
+_10mK_Ratio=$(((_10mKEvents_standard) / _10mKEvents))
+
+# testing
+echo $PbR_Ratio
+echo $CuFrameSx_Ratio
+echo $PTFESx_Ratio
+echo $TeO2Sx_Ratio
+echo $TeO2_Ratio
+echo $_10mK_Ratio
+
 
 echo -e "PbR: \t $PbR_Ratio" > $GeneratedEventsFile
 echo -e "CuFrameSx: \t $CuFrameSx_Ratio" >> $GeneratedEventsFile
@@ -120,84 +130,87 @@ echo -e "10mK: \t $_10mK_Ratio" >> $GeneratedEventsFile
 
 
 ########## Start Running Simulations ##################
+StartTime=$(date -u +%s)
+echo "starting at time: $StartTime"
 
 # PbR-th232
 echo "PbR-th232 MC"
-StartTime=$(date -u +%s)
-echo "starting at time: $StartTime"
-$QSHIELDS_APP -U13 -G $TH232 -M$PbRLoops -N$PbREvents -or$SpectraDirectory/PbR-th232_Test.root > $LogDirectory/PbR-th232.log 
-FinishTime=$(date -u +%s)
-echo "Done at time: $FinishTime"
-echo "Time Elapsed: $(($FinishTime - $StartTime))"
+$QSHIELDS_APP -U13 -G $TH232 -M$PbRLoops -N$PbREvents -or$SpectraDirectory/PbR-th232_Test.root > $LogDirectory/PbR-th232.log & 
+#FinishTime=$(date -u +%s)
+#echo "Done at time: $FinishTime"
+#echo "Time Elapsed: $(($FinishTime - $StartTime))"
 
-echo "PbR Time Elapsed: $(($FinishTime - $StartTime))" > OutTimes.log
-echo "PbR Events = (($PbRLoops * $PbREvents))" >> OutTimes.log
+#echo "PbR Time Elapsed: $(($FinishTime - $StartTime))" > OutTimes.log
+#echo "PbR Events = (($PbRLoops * $PbREvents))" >> OutTimes.log
 
 # CuFrameSx-th232
 echo "CuFrameSx-th232 MC"
-StartTime=$(date -u +%s)
-echo "starting at time: $StartTime"
-$QSHIELDS_APP -X\(38,0,+0.0005\) -G $TH232 -N$CuFrameSxEvents -or$SpectraDirectory/CuFrameSx-th232_Test.root > $LogDirectory/CuFrameSx-th232.log
-FinishTime=$(date -u +%s)
+#StartTime=$(date -u +%s)
+#echo "starting at time: $StartTime"
+$QSHIELDS_APP -X\(38,0,+0.0005\) -G $TH232 -N$CuFrameSxEvents -or$SpectraDirectory/CuFrameSx-th232_Test.root > $LogDirectory/CuFrameSx-th232.log &
+#FinishTime=$(date -u +%s)
 
-echo "Done at time: $FinishTime"
-echo "Time Elapsed: $(($FinishTime - $StartTime))"
+#echo "Done at time: $FinishTime"
+#echo "Time Elapsed: $(($FinishTime - $StartTime))"
 
-echo "CuFrameSx Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
-echo "CuFrameSx Events = $CuFrameSxEvents" >> OutTimes.log
+#echo "CuFrameSx Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
+#echo "CuFrameSx Events = $CuFrameSxEvents" >> OutTimes.log
 
 # PTFESx-th232
 echo "PTFESx-th232"
-StartTime=$(date -u +%s)
-echo "starting at time: $StartTime"
-$QSHIELDS_APP -X\(42,0,+0.0005\) -G $TH232 -N$PTFESxEvents -or$SpectraDirectory/PTFESx-th232_Test.root > $LogDirectory/PTFESx-th232.log
-FinishTime=$(date -u +%s)
+#StartTime=$(date -u +%s)
+#echo "starting at time: $StartTime"
+$QSHIELDS_APP -X\(42,0,+0.0005\) -G $TH232 -N$PTFESxEvents -or$SpectraDirectory/PTFESx-th232_Test.root > $LogDirectory/PTFESx-th232.log &
+#FinishTime=$(date -u +%s)
 
-echo "Done at time: $FinishTime"
-echo "Time Elapsed: $(($FinishTime - $StartTime))"
+#echo "Done at time: $FinishTime"
+#echo "Time Elapsed: $(($FinishTime - $StartTime))"
 
-echo "PTFESx Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
-echo "PTFESx Events = $PTFESxEvents" >> OutTimes.log
+#echo "PTFESx Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
+#echo "PTFESx Events = $PTFESxEvents" >> OutTimes.log
 
 # TeO2Sx-pb210
 echo "TeO2Sx-pb210"
-StartTime=$(date -u +%s)
-echo "starting at time: $StartTime"
-$QSHIELDS_APP -X\(37,0,+0.0001\) -G $PB210 -M$TeO2SxLoops -N$TeO2SxEvents -or$SpectraDirectory/TeO2Sx-pb210_Test.root > $LogDirectory/TeO2Sx-pb210.log 
-FinishTime=$(date -u +%s)
+#StartTime=$(date -u +%s)
+#echo "starting at time: $StartTime"
+$QSHIELDS_APP -X\(37,0,+0.0001\) -G $PB210 -M$TeO2SxLoops -N$TeO2SxEvents -or$SpectraDirectory/TeO2Sx-pb210_Test.root > $LogDirectory/TeO2Sx-pb210.log &
+#FinishTime=$(date -u +%s)
 
-echo "Done at time: $FinishTime"
-echo "Time Elapsed: $(($FinishTime - $StartTime))"
+#echo "Done at time: $FinishTime"
+#echo "Time Elapsed: $(($FinishTime - $StartTime))"
 
-echo "TeO2Sx Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
-echo "TeO2Sx Events = (($TeO2SxLoops * $TeO2SxEvents))" >> OutTimes.log
+#echo "TeO2Sx Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
+#echo "TeO2Sx Events = (($TeO2SxLoops * $TeO2SxEvents))" >> OutTimes.log
 
 # TeO2-u238
 echo "TeO2-u238"
-StartTime=$(date -u +%s)
-echo "starting at time: $StartTime"
-$QSHIELDS_APP -U37 -G $U238 -N$TeO2Events -or$SpectraDirectory/TeO2-u238_Test.root > $LogDirectory/TeO2-u238.log
-FinishTime=$(date -u +%s)
+#StartTime=$(date -u +%s)
+#echo "starting at time: $StartTime"
+$QSHIELDS_APP -U37 -G $U238 -N$TeO2Events -or$SpectraDirectory/TeO2-u238_Test.root > $LogDirectory/TeO2-u238.log &
+#FinishTime=$(date -u +%s)
 
-echo "Done at time: $FinishTime"
-echo "Time Elapsed: $(($FinishTime - $StartTime))"
+#echo "Done at time: $FinishTime"
+#echo "Time Elapsed: $(($FinishTime - $StartTime))"
 
-echo "TeO2 Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
-echo "TeO2 Events = $TeO2Events" >> OutTimes.log
+#echo "TeO2 Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
+#echo "TeO2 Events = $TeO2Events" >> OutTimes.log
 
 # 10mK-u238
-echo "10mK-u238"
-StartTime=$(date -u +%s)
-echo "starting at time: $StartTime"
-$QSHIELDS_APP -U18 -G $U238 -N$_10mKEvents -or$SpectraDirectory/10mK-u238_Test.root > $LogDirectory/10mK-u238.log
-FinishTime=$(date -u +%s)
+#echo "10mK-u238"
+#StartTime=$(date -u +%s)
+#echo "starting at time: $StartTime"
+$QSHIELDS_APP -U18 -G $U238 -N$_10mKEvents -or$SpectraDirectory/10mK-u238_Test.root > $LogDirectory/10mK-u238.log &
+#FinishTime=$(date -u +%s)
 
-echo "Done at time: $FinishTime"
-echo "Time Elapsed: $(($FinishTime - $StartTime))"
+#echo "Done at time: $FinishTime"
+#echo "Time Elapsed: $(($FinishTime - $StartTime))"
 
-echo "10mK Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
-echo "10mK Events = $_10mKEvents" >> OutTimes.log
+#echo "10mK Time Elapsed: $(($FinishTime - $StartTime))" >> OutTimes.log
+#echo "10mK Events = $_10mKEvents" >> OutTimes.log
 
+echo "Waiting for simulation jobs to complete..."
+wait
+echo "Done waiting!"
 
 ##### Run g4cuore############################################
 
