@@ -23,6 +23,7 @@ Ratios_File_Name = "BenchmarkTestFiles/spectra/EventRatios.txt"
 
 # Outputs Location, '\' for sed
 Plot_Output_Location = "BenchmarkTestFiles\/Output\/Plots\/"
+Plot_Output_Location_Nice = "BenchmarkTestFiles/Output/Plots/"
 Output_File_Name = "BenchmarkTestFiles/Output/Output.txt"
 
 # Generate output location and output plot locations
@@ -81,7 +82,7 @@ for Name in Simulation_Names:
 		
 	# Change names of the ntp files to run on, use '\/' for sed
 	WorkDirectory = "BenchmarkTestFiles"
-	Old_NTP_Directory = WorkDirectory + "\/Old_Benchmark_Data\/ntp"
+	Old_NTP_Directory = WorkDirectory + "\/Old_BenchmarkData"
 	New_NTP_Directory = WorkDirectory + "\/NTP"
 
 	# g4cuore input files, use '\/' for sed
@@ -167,13 +168,13 @@ for Name in(Simulation_Names):
 		# Tell the problem to the user
 		print "Change in simulation %s, investigation needed:" %Name
 		if Sigma_Mall >= Discriminator:
-			print "\t In summed multiplicity, ratio of %s +- %s" %(Mall_Value[i], Mall_ValueError[i])
+			print "\t In summed multiplicity, ratio of %.5f +- %.5f" %(Mall_Value[i], Mall_ValueError[i])
 		if Sigma_M1 >= Discriminator:
-			print "\t In M1 spectrum, ratio of %s +- %s" %(M1_Value[i], M1_ValueError[i])
+			print "\t In M1 spectrum, ratio of %.5f +- %.5f" %(M1_Value[i], M1_ValueError[i])
 		if Sigma_M2 >= Discriminator:
-			print "\t In M2 spectrum, ratio of %s +- %s" %(M2_Value[i], M2_ValueError[i])
+			print "\t In M2 spectrum, ratio of %.5f +- %.5f" %(M2_Value[i], M2_ValueError[i])
 		if Sigma_Mmore2 >= Discriminator:
-			print "\t In multiplicity > 2 spectrum, ratio of %s +- %s" %(Mmore2_Value[i], Mmore2_Value[i])
+			print "\t In multiplicity > 2 spectrum, ratio of %.5f +- %.5f" %(Mmore2_Value[i], Mmore2_ValueError[i])
 	else:
 		# write standard output
 		print "No significant differences in simulation %s" %Name
@@ -183,4 +184,4 @@ for Name in(Simulation_Names):
 	i = i + 1
 	
 print "Benchmarking completed!"	
-print "Possible changes on smaller scales, recommended to look at the plots in %s to be sure" %(Plot_Output_Location)
+print "Possible changes on smaller scales, recommended to look at the plots in %s to be sure" %(Plot_Output_Location_Nice)
