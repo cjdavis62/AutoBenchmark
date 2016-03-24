@@ -158,20 +158,20 @@ void plot_energy__volume_() {
 
   // Build legends
   leg_Mall = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_Mall->AddEntry(old_Mall, "Old", "l");
-  leg_Mall->AddEntry(new_Mall, "New", "l");
+  leg_Mall->AddEntry(old_Mall, "t15.11.b01", "l");
+  leg_Mall->AddEntry(new_Mall, "t16.03", "l");
 
   leg_M1 = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_M1->AddEntry(old_M1, "Old", "l");
-  leg_M1->AddEntry(new_M1, "New", "l");
+  leg_M1->AddEntry(old_M1, "t15.11.b01", "l");
+  leg_M1->AddEntry(new_M1, "t16.03", "l");
 
   leg_M2 = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_M2->AddEntry(old_M2, "Old", "l");
-  leg_M2->AddEntry(new_M2, "New", "l");
+  leg_M2->AddEntry(old_M2, "t15.11.b01", "l");
+  leg_M2->AddEntry(new_M2, "t16.03", "l");
 
   leg_Mmore2 = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_Mmore2->AddEntry(old_Mmore2, "Old", "l");
-  leg_Mmore2->AddEntry(new_Mmore2, "New", "l");
+  leg_Mmore2->AddEntry(old_Mmore2, "t15.11.b01", "l");
+  leg_Mmore2->AddEntry(new_Mmore2, "t16.03", "l");
 
   // Generate canvases for each multiplicity
   TCanvas* c2 = new TCanvas("c2", "c2", 1200, 800);

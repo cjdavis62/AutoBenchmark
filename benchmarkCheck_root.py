@@ -10,10 +10,8 @@
 # Usage information:
 # This script needs be run from the same directory in which the files were written
 
-
 import os
 from numpy import *
-#from pylab import *
 
 # Inputs Location
 Residual_File_Name = "BenchmarkTestFiles/Output/Ratios.dat"
@@ -61,7 +59,7 @@ for Name in Simulation_Names:
 
 	os.system("cp plot_energy_template.cc %s" %(Cpp_Name))
 	
-	# Change variable names in the file
+	#### Change variable names in the file ####
 			
 	# Change void name and change volume names
 	os.system("sed 's/_volume_/%s/' <%s >%s; mv %s %s" %(Name, Cpp_Name, tmpfile, tmpfile, Cpp_Name))
@@ -130,6 +128,18 @@ Generation_Ratios_str = Ratios[:,1]
 # Convert to floats
 Generation_Ratios = [float(x) for x in Generation_Ratios_str]
 
+print Generation_Ratios
+
+# Test
+for j in range(0, len(Generation_Ratios)):
+	print "%s \t %s" %(Mall_Value[j], Mall_ValueError[j])
+	print "%s \t %s" %(M1_Value[j], M1_ValueError[j])
+	print "%s \t %s" %(M2_Value[j], M2_ValueError[j])
+	print "%s \t %s" %(Mmore2_Value[j], Mmore2_ValueError[j])
+
+
+# Testing
+
 # Adjust the values based on the ratio of events generated
 for j in range (0, len(Generation_Ratios)):
 
@@ -145,11 +155,11 @@ for j in range (0, len(Generation_Ratios)):
 # Write output
 os.system("clear")
 
-print "*" * 29
-print "*" * 29
-print "****** Output ******"
-print "*" * 29
-print "*" * 29
+print "*" * 60
+print "*" * 60
+print "*" * 26 + " Output " + "*"*26
+print "*" * 60
+print "*" * 60
 
 # Discriminator for determining if a spectrum is too variant, will need checking
 Discriminator = 10
@@ -179,7 +189,7 @@ for Name in(Simulation_Names):
 		# write standard output
 		print "No significant differences in simulation %s" %Name
 	
-	print "*" * 29
+	print "*" * 60
 	
 	i = i + 1
 	
