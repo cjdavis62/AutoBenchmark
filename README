@@ -1,16 +1,18 @@
 These scripts will automatically benchmark a test release of qshields with the previous tagged version
 
-To run, first open an interactive session on your server (walltime 48 hours) and run in the location you wish to generate files.
+To run,
 > . benchmarkCheck.sh
 
-This will run for approximately 30-40 hours and perform the following:
+note: This script uses a wait command, so you will need to kill other background processes while this script is running.
+
+This will run for approximately "30-40" hours and perform the following:
 1. Create output directories
 2. SVN old data from ROMA cluster to local host. (~10 GB)
 3. Generates spectra using same parameters as the old spectra (with fewer events) with the "new" qshields
 4. Runs the "new" g4cuore on the new spectra with the same parameters as the old spectra
 
 
-After this is completed, run the next script:
+At the end of benchmarkCheck.sh, it will run:
 > python benchmarkCheck_root.py
 
 This will perform the following:

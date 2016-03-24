@@ -24,8 +24,9 @@ read G4CUORE_APP
 echo "*" * 20
 echo "WARNING"
 echo "*" * 20
-echo "Program assumes no changes to the volume names between versions"
+echo "1. Program assumes no changes to the volume names between versions"
 echo "If you changed the names of the volumes, you will need to edit the source code"
+echo "2. Make sure you don't have anything else running in the background, as this script uses the bash 'wait' command"
 # to fix this, look for lines that contain $QSHIELDS_APP and make necessary adjustments
 
 # make directories to place files in
