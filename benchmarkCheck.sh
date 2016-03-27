@@ -162,6 +162,8 @@ $QSHIELDS_APP -U37 -G $U238 -N$TeO2Events -or$SpectraDirectory/TeO2_u238_Test.ro
 $QSHIELDS_APP -U18 -G $U238 -N$_10mKEvents -or$SpectraDirectory/10mK_u238_Test.root > $LogDirectory/10mK_u238.log &
 
 echo "Waiting for simulation jobs to complete..."
+echo "Warning! Make sure no other bash commands are running in the background."
+echo "This script waits for all other background scripts to finish to continue..."
 wait
 echo "Done waiting! Continuing..."
 
