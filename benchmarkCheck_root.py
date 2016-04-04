@@ -13,6 +13,7 @@
 import os
 from numpy import *
 
+
 # Inputs Location
 Residual_File_Name = "BenchmarkTestFiles/Output/Ratios.dat"
 Residual_File_Name_temp = "BenchmarkTestFiles/Output/Ratios_temp.dat"
@@ -40,6 +41,11 @@ PTFESx_th232_Bins = 10000
 TeO2Sx_pb210_Bins = 6000
 TeO2_u238_Bins = 12000
 _10mK_u238_Bins = 3500
+
+# Names of the old + new histograms in the legends
+Old_legend_title = "Benchmarked Version"
+New_legend_title = "Development Version"
+
 
 # Generate directory to place cpp files for ROOT
 if not os.path.isdir("cpp_files"):
@@ -78,6 +84,11 @@ for Name in Simulation_Names:
 	elif "10mK_u238" in Name:
 		os.system("sed 's/_number_of_bins_/%s/' <%s >%s; mv %s %s" %(_10mK_u238_Bins, Cpp_Name, tmpfile, tmpfile, Cpp_Name))	
 		
+	# Change the names of the legends
+	os.system("sed 's/_old_version/%s/' <%s >%s; mv %s %s" %(Old_legend_title, Cpp_Name, tmpfile, tmpfile, Cpp_Name))
+	os.system("sed 's/_new_version/%s/' <%s >%s; mv %s %s" %(New_legend_title, Cpp_Name, tmpfile, tmpfile, Cpp_Name))
+
+
 	# Change names of the ntp files to run on, use '\/' for sed
 	WorkDirectory = "BenchmarkTestFiles"
 	Old_NTP_Directory = WorkDirectory + "\/Old_BenchmarkData"
@@ -111,6 +122,8 @@ M2_ValueError_str = Data[:,5]
 Mmore2_Value_str = Data[:,6]
 Mmore2_ValueError_str = Data[:,7]
 
+Chain_Ratio_str = Data[:,8]
+
 # Convert data to floats
 Mall_Value = [float(x) for x in Mall_Value_str]
 Mall_ValueError = [float(x) for x in Mall_ValueError_str]
@@ -120,6 +133,7 @@ M2_Value = [float(x) for x in M2_Value_str]
 M2_ValueError = [float(x) for x in M2_ValueError_str]
 Mmore2_Value = [float(x) for x in Mmore2_Value_str]
 Mmore2_ValueError = [float(x) for x in Mmore2_ValueError_str]
+Chain_Ratio = [float(x) for x in Chain_Ratio_str]
 
 # Read in values of the ratio of events generated
 Ratios = loadtxt(Ratios_File_Name, delimiter = "\t", dtype = str)
@@ -128,15 +142,20 @@ Generation_Ratios_str = Ratios[:,1]
 # Convert to floats
 Generation_Ratios = [float(x) for x in Generation_Ratios_str]
 
+print "Generation Ratios:"
 print Generation_Ratios
 
 # Test
+
+print "Value \t ValueError:"
 for j in range(0, len(Generation_Ratios)):
 	print "%s \t %s" %(Mall_Value[j], Mall_ValueError[j])
 	print "%s \t %s" %(M1_Value[j], M1_ValueError[j])
 	print "%s \t %s" %(M2_Value[j], M2_ValueError[j])
 	print "%s \t %s" %(Mmore2_Value[j], Mmore2_ValueError[j])
 
+print "Chain Ratio:"
+print Chain_Ratio
 
 # Testing
 
@@ -179,12 +198,35 @@ for Name in(Simulation_Names):
 		print "Change in simulation %s, investigation needed:" %Name
 		if Sigma_Mall >= Discriminator:
 			print "\t In summed multiplicity, ratio of %.5f +- %.5f" %(Mall_Value[i], Mall_ValueError[i])
+			print "\t Checking the number of generated chains:"
+			Mall_Value_Chain_Adjusted = Mall_Value[i] / Chain_Ratio[i]
+			Mall_ValueError_Chain_Adjusted = Mall_ValueError[i] / Chain_Ratio[i]
+			print "\t The new simulation generated %.5f times more chains than the benchmarked version" %(Chain_Ratio[i])
+			print "\t This adjusts to a ratio of %.5f +- %.5f" %(Mall_Value_Chain_Adjusted, Mall_ValueError_Chain_Adjusted)
+
 		if Sigma_M1 >= Discriminator:
 			print "\t In M1 spectrum, ratio of %.5f +- %.5f" %(M1_Value[i], M1_ValueError[i])
+			print "\t Checking the number of generated chains:"
+			M1_Value_Chain_Adjusted = M1_Value[i] / Chain_Ratio[i]
+			M1_ValueError_Chain_Adjusted = M1_ValueError[i] / Chain_Ratio[i]
+			print "\t The new simulation generated %.5f times more chains than the benchmarked version" %(Chain_Ratio[i])
+			print "\t This adjusts to a ratio of %.5f +- %.5f" %(M1_Value_Chain_Adjusted, M1_ValueError_Chain_Adjusted)
+
 		if Sigma_M2 >= Discriminator:
 			print "\t In M2 spectrum, ratio of %.5f +- %.5f" %(M2_Value[i], M2_ValueError[i])
+			print "\t Checking the number of generated chains:"
+			M2_Value_Chain_Adjusted = M2_Value[i] / Chain_Ratio[i]
+			M2_ValueError_Chain_Adjusted = M2_ValueError[i] / Chain_Ratio[i]
+			print "\t The new simulation generated %.5f times more chains than the benchmarked version" %(Chain_Ratio[i])
+			print "\t This adjusts to a ratio of %.5f +- %.5f" %(M2_Value_Chain_Adjusted, M2_ValueError_Chain_Adjusted)
+
 		if Sigma_Mmore2 >= Discriminator:
 			print "\t In multiplicity > 2 spectrum, ratio of %.5f +- %.5f" %(Mmore2_Value[i], Mmore2_ValueError[i])
+			print "\t Checking the number of generated chains:"
+			Mmore2_Value_Chain_Adjusted = Mmore2_Value[i] / Chain_Ratio[i]
+			Mmore2_ValueError_Chain_Adjusted = Mmore2_ValueError[i] / Chain_Ratio[i]
+			print "\t The new simulation generated %.5f times more chains than the benchmarked version" %(Chain_Ratio[i])
+			print "\t This adjusts to a ratio of %.5f +- %.5f" %(Mmore2_Value_Chain_Adjusted, Mmore2_ValueError_Chain_Adjusted)
 	else:
 		# write standard output
 		print "No significant differences in simulation %s" %Name

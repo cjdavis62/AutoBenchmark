@@ -11,8 +11,8 @@ Adjusted variables are labelled with leading and trailing "_"
 */
 
 // Written by Christopher Davis
-// Version 2.0 9Mar2016
-// Version 2.0 should be completed version
+// Version 3.0 30Mar2016
+
 
 #include "TROOT.h"
 #include "TTree.h"
@@ -55,6 +55,11 @@ void plot_energy__volume_() {
   TFile* f02 = new TFile("_new_input_file_");
   TTree* t02 = (TTree*)f02->Get("outTree");
   
+
+  // Look at inputs to the MC
+  TTree* t01 = (TTree*)f00->Get("infoTree");
+  TTree* t03 = (TTree*)f02->Get("infoTree");
+
   // Compare these histograms
   TH1F* old_Mall = new TH1F("old_Mall", "old_Mall", nbins, bin_low, bin_high);
   TH1F* old_M1 = new TH1F("old_M1", "old_M1", nbins, bin_low, bin_high);
@@ -71,6 +76,11 @@ void plot_energy__volume_() {
   TH1F* residuals_M2 = new TH1F("residuals_M2", "residuals_M2", nbins, bin_low, bin_high);
   TH1F* residuals_Mmore2 = new TH1F("residuals_Mmore2", "residuals_Mmore2", nbins, bin_low, bin_high);
 
+  // Plot for check on number of Decay Chains generated
+
+  TH1F* decayChains_old = new TH1F("decayChains_old", "decayChains_old", nbins, bin_low, 1000000000000);
+  TH1F* decayChains_new = new TH1F("decayChains_new", "decayChains_new", nbins, bin_low, 1000000000000);
+
   // Multiplicity cuts
   TCut M1 = "Multiplicity == 1";
   TCut M2 = "Multiplicity == 2";
@@ -86,6 +96,9 @@ void plot_energy__volume_() {
   t02->Draw("Ener1 >> new_M2", M2);
   t02->Draw("Ener1 >> new_Mmore2", Mmore2);
 
+  t01->Draw("NchainMC >> decayChains_old");
+  t03->Draw("NchainMC >> decayChains_new");
+
   // Get the total number of events, set the error on the number of events equal to sqrt(N). Do for both old and new histograms
   double integral_old = old_Mall->GetEntries();
   double integral_old_error = sqrt(integral_old);
@@ -96,11 +109,6 @@ void plot_energy__volume_() {
   double normalization_Mall = integral_old / integral_new;
   double normalization_Mall_error = normalization_Mall * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
-  // Suppress output
-  //cout << "old integral_Mall: " << integral_old << " +- " << integral_old_error << endl;
-  //cout << "new integral_Mall: " << integral_new << " +- " << integral_new_error << endl;
-  //cout << "normalization_Mall: " << normalization_Mall << " +- " << normalization_Mall_error << endl;
-
   // Repeat this process for the other multiplicities
   double integral_old = old_M1->GetEntries();
   double integral_old_error = sqrt(integral_old);
@@ -110,10 +118,6 @@ void plot_energy__volume_() {
   double normalization_M1 = integral_old / integral_new;
   double normalization_M1_error = normalization_M1 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
-  //cout << "old integral_M1: " << integral_old << " +- " << integral_old_error << endl;
-  //cout << "new integral_M1: " << integral_new << " +- " << integral_new_error << endl;
-  //cout << "normalization_M1: " << normalization_M1 << " +- " << normalization_M1_error << endl;
-
   double integral_old = old_M2->GetEntries();
   double integral_old_error = sqrt(integral_old);
   
@@ -122,10 +126,6 @@ void plot_energy__volume_() {
   double normalization_M2 = integral_old / integral_new;
   double normalization_M2_error = normalization_M2 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
   
-  //cout << "old integral_M2: " << integral_old << " +- " << integral_old_error << endl;
-  //cout << "new integral_M2: " << integral_new << " +- " << integral_new_error << endl;
-  //cout << "normalization_M2: " << normalization_M2 << " +- " << normalization_M2_error << endl;
-
 
   double integral_old = old_Mmore2->GetEntries();
   double integral_old_error = sqrt(integral_old);
@@ -134,11 +134,6 @@ void plot_energy__volume_() {
   double integral_new_error = sqrt(integral_new);
   double normalization_Mmore2 = integral_old / integral_new;
   double normalization_Mmore2_error = normalization_Mmore2 * sqrt(pow((integral_old_error / integral_old), 2) + pow((integral_new_error / integral_new), 2));
-  
-  //cout << "old integral_Mmore2: " << integral_old << " +- " << integral_old_error << endl;
-  //cout << "new integral_Mmore2: " << integral_new << " +- " << integral_new_error << endl;
-  //cout << "normalization_Mmore2: " << normalization_Mmore2 << " +- " << normalization_Mmore2_error << endl;
-
   
   new_Mall->Scale(normalization_Mall);
   new_M1->Scale(normalization_M1);
@@ -158,20 +153,20 @@ void plot_energy__volume_() {
 
   // Build legends
   leg_Mall = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_Mall->AddEntry(old_Mall, "t15.11.b01", "l");
-  leg_Mall->AddEntry(new_Mall, "t16.03", "l");
+  leg_Mall->AddEntry(old_Mall, "_old_version_", "l");
+  leg_Mall->AddEntry(new_Mall, "_new_version_", "l");
 
   leg_M1 = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_M1->AddEntry(old_M1, "t15.11.b01", "l");
-  leg_M1->AddEntry(new_M1, "t16.03", "l");
+  leg_M1->AddEntry(old_M1, "_old_version_", "l");
+  leg_M1->AddEntry(new_M1, "_new_version_", "l");
 
   leg_M2 = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_M2->AddEntry(old_M2, "t15.11.b01", "l");
-  leg_M2->AddEntry(new_M2, "t16.03", "l");
+  leg_M2->AddEntry(old_M2, "_old_version_", "l");
+  leg_M2->AddEntry(new_M2, "_new_version_", "l");
 
   leg_Mmore2 = new TLegend(0.67, 0.67, 0.88, 0.88);
-  leg_Mmore2->AddEntry(old_Mmore2, "t15.11.b01", "l");
-  leg_Mmore2->AddEntry(new_Mmore2, "t16.03", "l");
+  leg_Mmore2->AddEntry(old_Mmore2, "_old_version_", "l");
+  leg_Mmore2->AddEntry(new_Mmore2, "_new_version_", "l");
 
   // Generate canvases for each multiplicity
   TCanvas* c2 = new TCanvas("c2", "c2", 1200, 800);
@@ -235,7 +230,7 @@ void plot_energy__volume_() {
 	Double_t differr = new_Mall->GetBinError(i);
       }
     residuals_Mall->SetBinContent(i, diff);
-	// Error bars are too large to see the plot very well so comment out
+    // Error bars are too large to see the plot very well so comment out
     //residuals_Mall->SetBinError(i, differr);
 }
 
@@ -300,7 +295,7 @@ void plot_energy__volume_() {
 	Double_t differr = new_M1->GetBinError(i);
       }
     residuals_M1->SetBinContent(i, diff);
-	// Error bars are too large to see the plot very well so comment out
+    // Error bars are too large to see the plot very well so comment out
     //residuals_M1->SetBinError(i, differr);
 }
 
@@ -353,7 +348,7 @@ void plot_energy__volume_() {
   residuals_M2->GetYaxis()->SetTitleOffset(1);
   residuals_M2->GetYaxis()->SetLabelFont(63);
   residuals_M2->GetYaxis()->SetLabelSize(16);
-
+  
   for (Int_t i = 1; i <= nbins; i++) {
     if (old_M2->GetBinContent(i) != 0)
       {
@@ -366,9 +361,9 @@ void plot_energy__volume_() {
 	Double_t differr = new_M2->GetBinError(i);
       }
     residuals_M2->SetBinContent(i, diff);
-	// Error bars are too large to see the plot very well so comment out
+    // Error bars are too large to see the plot very well so comment out
     //residuals_M2->SetBinError(i, differr);
-}
+  }
 
   residuals_M2->Draw("P");
 
@@ -432,29 +427,36 @@ void plot_energy__volume_() {
 	Double_t differr = new_Mmore2->GetBinError(i);
       }
     residuals_Mmore2->SetBinContent(i, diff);
-	// Error bars are too large to see the plot very well so comment out
+    // Error bars are too large to see the plot very well so comment out
     //residuals_Mmore2->SetBinError(i, differr);
-}
+  }
 
   residuals_Mmore2->Draw("P");
 
+
+  // Check the number of generated chains
+  float Generated_Chains_old = decayChains_old->GetMean() * decayChains_old->GetEntries();
+  float Generated_Chains_new = decayChains_new->GetMean() * decayChains_new->GetEntries();
+
+  float Chain_Ratio = Generated_Chains_old / Generated_Chains_new;
   
-	// Save all the files
-	c2->SaveAs("_plot_output_location__volume__Mall.pdf");
-	c2->SaveAs("_plot_output_location__volume__Mall.C");
-	c3->SaveAs("_plot_output_location__volume__M1.pdf");
-	c3->SaveAs("_plot_output_location__volume__M1.C");
-	c4->SaveAs("_plot_output_location__volume__M2.pdf");
-	c4->SaveAs("_plot_output_location__volume__M2.C");
-	c5->SaveAs("_plot_output_location__volume__Mmore2.pdf");
-	c5->SaveAs("_plot_output_location__volume__Mmore2.C");
-	
-	// Write the output file
-	ofstream OutFile;
-	OutFile.open("BenchmarkTestFiles/Output/Ratios_temp.dat");
-	OutFile << normalization_Mall << "\t" << normalization_Mall_error << "\t";
-	OutFile << normalization_M1 << "\t" << normalization_M1_error << "\t";
-	OutFile << normalization_M2 << "\t" << normalization_M1_error << "\t";
-	OutFile << normalization_Mmore2 << "\t" << normalization_M2_error << "\n";
-	OutFile.close();
+  // Save all the files
+  c2->SaveAs("_plot_output_location__volume__Mall.pdf");
+  c2->SaveAs("_plot_output_location__volume__Mall.C");
+  c3->SaveAs("_plot_output_location__volume__M1.pdf");
+  c3->SaveAs("_plot_output_location__volume__M1.C");
+  c4->SaveAs("_plot_output_location__volume__M2.pdf");
+  c4->SaveAs("_plot_output_location__volume__M2.C");
+  c5->SaveAs("_plot_output_location__volume__Mmore2.pdf");
+  c5->SaveAs("_plot_output_location__volume__Mmore2.C");
+  
+  // Write the output file
+  ofstream OutFile;
+  OutFile.open("BenchmarkTestFiles/Output/Ratios_temp.dat");
+  OutFile << normalization_Mall << "\t" << normalization_Mall_error << "\t";
+  OutFile << normalization_M1 << "\t" << normalization_M1_error << "\t";
+  OutFile << normalization_M2 << "\t" << normalization_M1_error << "\t";
+  OutFile << normalization_Mmore2 << "\t" << normalization_M2_error << "\t";
+  OutFile << Chain_Ratio << "\n";
+  OutFile.close();
 }
