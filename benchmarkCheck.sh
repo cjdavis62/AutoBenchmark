@@ -1,7 +1,10 @@
+#!/bin/bash
+
+#****************************************#
 # benchmarkCheck.sh
 # Written by Christopher Davis
-# v0.1: 23Feb2016
-
+# v2.0: 4Apr2016
+#****************************************#
 
 # Bash script
 # Generates benchmarking simulation spectra and checks to see differences with prior benchmarked spectra
@@ -12,18 +15,93 @@
 # 3. run checks between spectra
 # 4. look for spectra differences (output warnings?)
 
+# usage information
+#. benchmark.sh -q /path/to/qshields -g /path/to/g4cuore
+
 
 ####################### Prep to Run programs #########################
+
 clear
-echo "What is the name of your qshields application in your PATH? e.g. qshields-t15.11.b01"
-read QSHIELDS_APP
+#echo "What is the name of your qshields application in your PATH? e.g. qshields-t15.11.b01"
+#read QSHIELDS_APP
 
-echo "What is the name of your g4cuore application in your PATH? e.g. g4cuore-t15.11.b01"
-read G4CUORE_APP
+#echo "What is the name of your g4cuore application in your PATH? e.g. g4cuore-t15.11.b01"
+#read G4CUORE_APP
 
-echo "*" * 20
+HELP_INFORMATION="This script generates benchmarking simulation spectra and checks to see differences with prior benchmarked spectra\n
+General Procedure:\n
+    \t1. scp old spectra to local machine\n
+    \t2. run simulations with new version\n
+    \t3. run checks between spectra\n
+    \t4. look for spectra differences\n
+Steps 3 and 4 are performed in benchmarkCheck_root.py which is called at the end of this script\n
+ usage information: -u\n
+\t    . benchmark.sh -q /path/to/qshields -g /path/to/g4cuore\n
+use the -h option or --help to display this information again\n
+" 
+
+USAGE_INFORMATION="usage:
+./benchmark.sh -q /path/to/qshields -g /path/to/g4cuore"
+
+QSHIELDS_APP=""
+G4CUORE_APP=""
+
+#while getopts ":q:g:h" opt; do
+while getopts ":g:q:h" opt; do
+    case $opt in
+    q)
+	    QSHIELDS_APP=$OPTARG
+	    ;;
+
+    g)
+	    G4CUORE_APP=$OPTARG
+	    ;;
+
+    h)
+	    echo -e $HELP_INFORMATION
+	    exit
+	    ;;
+
+    u)
+	    echo -e $USAGE_INFORMATION
+	    exit
+	    ;;
+
+    \?)
+	    echo "Didn't understand all the arguments..."
+	    echo "Printing help information...."
+	    echo -e $HELP_INFORMATION
+	    exit 1
+	    ;;
+    :)
+	    echo "Need to pass arguments to the script"
+	    echo -e $HELP_INFORMATION
+	    exit 1
+	    ;;
+    
+    esac
+done
+
+# Check to make QSHIELDS_APP and G4CUORE_APP defined by arguments
+if [ -z "$QSHIELDS_APP" ]; then
+#if [ $QSHIELDS_APP -eq "" ] || [ $G4CUORE_APP -eq "" ]; then
+    echo -e $USAGE_INFORMATION
+    exit 2
+fi
+
+if [ -z "$G4CUORE_APP" ]; then
+    echo -e $USAGE_INFORMATION
+    exit 2
+fi
+
+# Tell the user what they put in
+echo "Using qshields located at: $QSHIELDS_APP"
+echo "Using g4cuore located at: $G4CUORE_APP"
+	    
+
+echo "********************"
 echo "WARNING"
-echo "*" * 20
+echo "********************"
 echo "1. Program assumes no changes to the volume names between versions"
 echo "If you changed the names of the volumes, you will need to edit the source code"
 echo "2. Make sure you don't have anything else running in the background, as this script uses the bash 'wait' command"
@@ -60,14 +138,14 @@ fi
 echo "spectra will be located in $SpectraDirectory"
 echo "g4cuore outputs will be located in $NTPDirectory"
 
-#### scp old spectra to local machine
+#### scp old spectra to machine
 ROMA_DIRECTORY=$WorkDirectory/Old_BenchmarkData
 echo "Checking for benchmarking files in $ROMA_DIRECTORY..."
 if [ -d "$ROMA_DIRECTORY" ]; then
     echo "files already here, great!"
 else
     echo "files not found..."
-    echo "loading old spectra to local machine"
+    echo "loading old spectra to machine"
     echo "What is your ROMA cluster username?"
     read ROMA_USERNAME 
     scp -r $ROMA_USERNAME@farm-login.roma1.infn.it:/cuore/data/simulation/CUORE/v_9.6/benchmark/t15.11.b01/ntp/ $ROMA_DIRECTORY
@@ -167,6 +245,7 @@ echo "This script waits for all other background scripts to finish to continue..
 wait
 echo "Done waiting! Continuing..."
 
+FinishTime=$(date -u +%s)
 echo "Done at time: $FinishTime"
 echo "Time Elapsed: $(($FinishTime - $StartTime))"
 
