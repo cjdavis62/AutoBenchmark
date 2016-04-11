@@ -1,13 +1,15 @@
 These scripts will automatically benchmark a test release of qshields with the previous tagged version
 
 To run,
-> . benchmarkCheck.sh
+> ./benchmarkCheck.sh -q /path/to/qshields -g /path/to/g4cuore
+
+If this is your first time running the script, you will also need to input your ROMA username to scp files at the beginning of operation.
 
 note: This script uses a wait command, so you will need to kill other background processes while this script is running.
 
 This will run for approximately "30-40" hours and perform the following:
 1. Create output directories
-2. SVN old data from ROMA cluster to local host. (~10 GB)
+2. SVN old data from ROMA cluster to local host. (~1.3 GB .tar file)
 3. Generates spectra using same parameters as the old spectra (with fewer events) with the "new" qshields
 4. Runs the "new" g4cuore on the new spectra with the same parameters as the old spectra
 
