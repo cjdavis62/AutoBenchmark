@@ -1,9 +1,10 @@
 #!/bin/bash
 
 #****************************************#
-# benchmarkCheck.sh
-# Written by Christopher Davis
-# v2.0: 4Apr2016
+# benchmarkCheck.sh                      #
+# Written by Christopher Davis           #
+# v2.1: 6Apr2016                         #
+# christopher.davis@yale.edu             #
 #****************************************#
 
 # Bash script
@@ -22,11 +23,10 @@
 ####################### Prep to Run programs #########################
 
 clear
-#echo "What is the name of your qshields application in your PATH? e.g. qshields-t15.11.b01"
-#read QSHIELDS_APP
 
-#echo "What is the name of your g4cuore application in your PATH? e.g. g4cuore-t15.11.b01"
-#read G4CUORE_APP
+echo "****************************************"
+echo "****** Starting Benchmarking Tool ******"
+echo "****************************************"
 
 HELP_INFORMATION="This script generates benchmarking simulation spectra and checks to see differences with prior benchmarked spectra\n
 General Procedure:\n
@@ -46,7 +46,6 @@ USAGE_INFORMATION="usage:
 QSHIELDS_APP=""
 G4CUORE_APP=""
 
-#while getopts ":q:g:h" opt; do
 while getopts ":g:q:h" opt; do
     case $opt in
     q)
@@ -84,7 +83,6 @@ done
 
 # Check to make QSHIELDS_APP and G4CUORE_APP defined by arguments
 if [ -z "$QSHIELDS_APP" ]; then
-#if [ $QSHIELDS_APP -eq "" ] || [ $G4CUORE_APP -eq "" ]; then
     echo -e $USAGE_INFORMATION
     exit 2
 fi
@@ -99,76 +97,83 @@ echo "Using qshields located at: $QSHIELDS_APP"
 echo "Using g4cuore located at: $G4CUORE_APP"
 	    
 
-echo "********************"
-echo "WARNING"
-echo "********************"
-echo "1. Program assumes no changes to the volume names between versions"
-echo "If you changed the names of the volumes, you will need to edit the source code"
-echo "2. Make sure you don't have anything else running in the background, as this script uses the bash 'wait' command"
-# to fix this, look for lines that contain $QSHIELDS_APP and make necessary adjustments
 
+
+echo "********** Warning **********"
+echo "1. Program assumes no changes to the volume names between versions"
+echo -e "\t If you changed the names of the volumes, you will need to edit the source code"
+echo "2. Make sure you don't have anything else running in the background, as this script uses the bash 'wait' command"
+echo "*****************************"
 # make directories to place files in
-echo "Now generating directories to place output files"
-WorkDirectory=BenchmarkTestFiles
-if ! [ -d $WorkDirectory ]; then
-    mkdir $WorkDirectory
+echo "Now generating directories to place output files..."
+WORK_DIRECTORY=BenchmarkTestFiles
+if ! [ -d $WORK_DIRECTORY ]; then
+    mkdir $WORK_DIRECTORY
 fi
 
 # log files go here
-LogDirectory=$WorkDirectory/log
-if ! [ -d $LogDirectory ]; then
-    mkdir $LogDirectory
+LOG_DIRECTORY=$WORK_DIRECTORY/log
+if ! [ -d $LOG_DIRECTORY ]; then
+    mkdir $LOG_DIRECTORY
 fi
 
 # spectra go here
-SpectraDirectory=$WorkDirectory/spectra
-if ! [ -d $SpectraDirectory ]; then
-    mkdir $SpectraDirectory
+SPECTRA_DIRECTORY=$WORK_DIRECTORY/spectra
+if ! [ -d $SPECTRA_DIRECTORY ]; then
+    mkdir $SPECTRA_DIRECTORY
 fi
 
 # ratios of generated events go under spectra directory
-GeneratedEventsFile=$SpectraDirectory/EventRatios.txt
+GeneratedEventsFile=$SPECTRA_DIRECTORY/EventRatios.txt
 
 #g4cuore data go here
-NTPDirectory=$WorkDirectory/NTP
-if ! [ -d $NTPDirectory ]; then
-    mkdir $NTPDirectory
+NTP_DIRECTORY=$WORK_DIRECTORY/NTP
+if ! [ -d $NTP_DIRECTORY ]; then
+    mkdir $NTP_DIRECTORY
 fi
 
-echo "spectra will be located in $SpectraDirectory"
-echo "g4cuore outputs will be located in $NTPDirectory"
+
+echo -e "\t Spectra will be located in $SPECTRA_DIRECTORY"
+echo -e "\t g4cuore outputs will be located in $NTP_DIRECTORY"
 
 #### scp old spectra to machine
-ROMA_DIRECTORY=$WorkDirectory/Old_BenchmarkData
-echo "Checking for benchmarking files in $ROMA_DIRECTORY..."
-if [ -d "$ROMA_DIRECTORY" ]; then
+ROMA_DIRECTORY=$WORK_DIRECTORY/Old_BenchmarkData
+DECAY_DIRECTORY=$WORK_DIRECTORY/DecayChains
+echo "Checking for necessary benchmarking files in $ROMA_DIRECTORY and $DECAY_DIRECTORY..."
+if [ -d "$ROMA_DIRECTORY" ] && [ -d "$DECAY_DIRECTORY" ]; then
     echo "files already here, great!"
 else
-    echo "files not found..."
-    echo "loading old spectra to machine"
+    echo "Required benchmarking files not found..."
+    echo "Loading old spectra and decay chains to machine"
     echo "What is your ROMA cluster username?"
-    read ROMA_USERNAME 
-    scp -r $ROMA_USERNAME@farm-login.roma1.infn.it:/cuore/data/simulation/CUORE/v_9.6/benchmark/t15.11.b01/ntp/ $ROMA_DIRECTORY
+    echo "**** User input required ****"
+    read ROMA_USERNAME
+    echo "Thanks! Downloading files now..."
+    echo "Please input your password at the prompt"
+    echo "**** User input required ****"
+    scp -r $ROMA_USERNAME@farm-login.roma1.infn.it:/cuore/data/simulation/CUORE/v_9.6/benchmark/benchmark_auto_files/Auto_Benchmark_Files.tar $WORK_DIRECTORY/.
+    echo "Files downloaded. Unpacking..."
+    tar -xf $WORK_DIRECTORY/Auto_Benchmark_Files.tar -C $WORK_DIRECTORY/.
 fi
 
 # Decay Chain files
-TH232=$WorkDirectory/DecayChains/th232_all
-PB210=$WorkDirectory/DecayChains/pb210-pb206
-U238=$WorkDirectory/DecayChains/u238_all
+TH232=$DECAY_DIRECTORY/th232_all
+PB210=$DECAY_DIRECTORY/pb210-pb206
+U238=$DECAY_DIRECTORY/u238_all
 
 # The root script that will run over the output files and run checks
 ROOTSCRIPT=benchmarkCheck_root.py
 
-echo "Okay we will now run qshields on the benchmarking simulations"
-
+echo "All set to run benchmarking simulations!"
+echo "Now running qshields on the benchmarking simulations"
 
 ##### Set Number of Events to Run ####################
 
 # Number of events to be generated
-PbREvents=1000
+PbREvents=1500
 PbRLoops=10000
 CuFrameSxEvents=5000000
-PTFESxEvents=10000000
+PTFESxEvents=5000000
 TeO2SxEvents=5000
 TeO2SxLoops=1000
 TeO2Events=5000000
@@ -193,15 +198,6 @@ TeO2Sx_Ratio=$(((TeO2SxEvents_standard * TeO2SxLoops_standard) / (TeO2SxEvents *
 TeO2_Ratio=$(((TeO2Events_standard) / TeO2Events))
 _10mK_Ratio=$(((_10mKEvents_standard) / _10mKEvents))
 
-# testing
-echo $PbR_Ratio
-echo $CuFrameSx_Ratio
-echo $PTFESx_Ratio
-echo $TeO2Sx_Ratio
-echo $TeO2_Ratio
-echo $_10mK_Ratio
-
-
 echo -e "PbR: \t $PbR_Ratio" > $GeneratedEventsFile
 echo -e "CuFrameSx: \t $CuFrameSx_Ratio" >> $GeneratedEventsFile
 echo -e "PTFESx: \t $PTFESx_Ratio" >> $GeneratedEventsFile
@@ -212,66 +208,72 @@ echo -e "10mK: \t $_10mK_Ratio" >> $GeneratedEventsFile
 
 ########## Start Running Simulations ##################
 StartTime=$(date -u +%s)
-echo "starting at time: $StartTime"
+StartTime_Readable=$(date)
+echo "starting at time: $StartTime_Readable"
 
 # PbR-th232
-echo "PbR-th232 MC"
-$QSHIELDS_APP -U13 -G $TH232 -M$PbRLoops -N$PbREvents -or$SpectraDirectory/PbR_th232_Test.root > $LogDirectory/PbR_th232.log & 
+echo "PbR-th232 MC starting"
+$QSHIELDS_APP -U13 -G $TH232 -M$PbRLoops -N$PbREvents -or$SPECTRA_DIRECTORY/PbR_th232.root &> $LOG_DIRECTORY/PbR_th232.log -i 1 & 
 
 # CuFrameSx-th232
-echo "CuFrameSx-th232 MC"
-$QSHIELDS_APP -X\(38,0,+0.0005\) -G $TH232 -N$CuFrameSxEvents -or$SpectraDirectory/CuFrameSx_th232_Test.root > $LogDirectory/CuFrameSx_th232.log &
+echo "CuFrameSx-th232 MC starting"
+$QSHIELDS_APP -X\(38,0,+0.0005\) -G $TH232 -N$CuFrameSxEvents -or$SPECTRA_DIRECTORY/CuFrameSx_th232.root &> $LOG_DIRECTORY/CuFrameSx_th232.log &
 
 # PTFESx-th232
-echo "PTFESx-th232"
-$QSHIELDS_APP -X\(42,0,+0.0005\) -G $TH232 -N$PTFESxEvents -or$SpectraDirectory/PTFESx_th232_Test.root > $LogDirectory/PTFESx_th232.log &
-
-#/cmn/cuore/geant4/tag/t15.11.b01/bin/9.6.p03/qshields-t15.11.b01 -X\(42,0,+0.0005\) -G $TH232 -N$PTFESxEvents -or$SpectraDirectory/PTFESx_th232_Test.root > $LogDirectory/PTFESx_th232.log &
+echo "PTFESx-th232 MC starting"
+$QSHIELDS_APP -X\(42,0,+0.0005\) -G $TH232 -N$PTFESxEvents -or$SPECTRA_DIRECTORY/PTFESx_th232.root &> $LOG_DIRECTORY/PTFESx_th232.log &
 
 # TeO2Sx-pb210
-echo "TeO2Sx-pb210"
-$QSHIELDS_APP -X\(37,0,+0.0001\) -G $PB210 -M$TeO2SxLoops -N$TeO2SxEvents -or$SpectraDirectory/TeO2Sx_pb210_Test.root > $LogDirectory/TeO2Sx_pb210.log &
+echo "TeO2Sx-pb210 MC starting"
+$QSHIELDS_APP -X\(37,0,+0.0001\) -G $PB210 -M$TeO2SxLoops -N$TeO2SxEvents -or$SPECTRA_DIRECTORY/TeO2Sx_pb210.root &> $LOG_DIRECTORY/TeO2Sx_pb210.log &
 
 # TeO2-u238
-echo "TeO2-u238"
-$QSHIELDS_APP -U37 -G $U238 -N$TeO2Events -or$SpectraDirectory/TeO2_u238_Test.root > $LogDirectory/TeO2_u238.log &
+echo "TeO2-u238 MC starting"
+$QSHIELDS_APP -U37 -G $U238 -N$TeO2Events -or$SPECTRA_DIRECTORY/TeO2_u238.root &> $LOG_DIRECTORY/TeO2_u238.log &
 
 # 10mK-u238
-$QSHIELDS_APP -U18 -G $U238 -N$_10mKEvents -or$SpectraDirectory/10mK_u238_Test.root > $LogDirectory/10mK_u238.log &
+echo "10mK-u238 MC starting"
+$QSHIELDS_APP -U18 -G $U238 -N$_10mKEvents -or$SPECTRA_DIRECTORY/10mK_u238.root &> $LOG_DIRECTORY/10mK_u238.log &
 
 echo "Waiting for simulation jobs to complete..."
 echo "Warning! Make sure no other bash commands are running in the background."
 echo "This script waits for all other background scripts to finish to continue..."
 wait
-echo "Done waiting! Continuing..."
+echo "Done waiting!"
 
 FinishTime=$(date -u +%s)
-echo "Done at time: $FinishTime"
-echo "Time Elapsed: $(($FinishTime - $StartTime))"
+FinishTime_Readable=$(date)
+echo "Done at time: $FinishTime_Readable"
+echo "Time Elapsed: $(($FinishTime - $StartTime)) seconds"
 
 ##### Run g4cuore############################################
 
 echo "Running g4cuore now"
 
 rateValue=0.0001
-integrationTime=0.005
+integrationTime=0.0005
 
-
+echo "[1/6] PbR_th232"
 # PbR-th232
-$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTPDirectory/PbR_th232_Test_g4cuore.root -ir$SpectraDirectory/PbR_th232_Test.root
+$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTP_DIRECTORY/PbR_th232_g4cuore.root -ir$SPECTRA_DIRECTORY/PbR_th232.root > $LOG_DIRECTORY/PbR_th232_g4cuore.log
+echo "[2/6] CuFrameSx_th232"
 # CuFrameSx-th233
-$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTPDirectory/CuFrameSx_th232_Test_g4cuore.root -ir$SpectraDirectory/CuFrameSx_th232_Test.root
+$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTP_DIRECTORY/CuFrameSx_th232_g4cuore.root -ir$SPECTRA_DIRECTORY/CuFrameSx_th232.root > $LOG_DIRECTORY/CuFrameSx_th232_g4cuore.log
+echo "[3/6] PTFESx_th232"
 # PTFESx-th232
-$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTPDirectory/PTFESx_th232_Test_g4cuore.root -ir$SpectraDirectory/PTFESx_th232_Test.root
+$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTP_DIRECTORY/PTFESx_th232_g4cuore.root -ir$SPECTRA_DIRECTORY/PTFESx_th232.root > $LOG_DIRECTORY/PTFESx_th232_g4cuore.log
+echo "[4/6] TeO2Sx_pb210" 
 # TeO2Sx-pb210
-$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTPDirectory/TeO2Sx_pb210_Test_g4cuore.root -ir$SpectraDirectory/TeO2Sx_pb210_Test.root
+$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTP_DIRECTORY/TeO2Sx_pb210_g4cuore.root -ir$SPECTRA_DIRECTORY/TeO2Sx_pb210.root > $LOG_DIRECTORY/TeO2Sx_pb210_g4cuore.log
+echo "[5/6] TeO2_u238"
 # TeO2-u238
-$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTPDirectory/TeO2_u238_Test_g4cuore.root -ir$SpectraDirectory/TeO2_u238_Test.root
+$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTP_DIRECTORY/TeO2_u238_g4cuore.root -ir$SPECTRA_DIRECTORY/TeO2_u238.root > $LOG_DIRECTORY/TeO2_u238_g4cuore.log
+echo "[6/6] 10mK_u238"
 # 10mK-u238
-$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTPDirectory/10mK_u238_Test_g4cuore.root -ir$SpectraDirectory/10mK_u238_Test.root
+$G4CUORE_APP -r$rateValue -D$integrationTime -or$NTP_DIRECTORY/10mK_u238_g4cuore.root -ir$SPECTRA_DIRECTORY/10mK_u238.root > $LOG_DIRECTORY/10mK_u238_g4cuore.log
 
 echo "Done with generating spectra"
-
+echo "Now running python script for analysis..."
 
 #### make comparisons
 
